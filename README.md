@@ -25,7 +25,7 @@ ETL-пайплайн для загрузки данных Brazilian E-Commerce P
 - `dags/` — DAG Airflow
 - `src/` — Python-код (extract, transform, load)
 - `sql/` — DDL и SQL-трансформации
-- `data/` — инструкции по данным
+- `datasets/` — инструкции по данным
 - `docker/` — Dockerfile
 
 ## Quick start
@@ -47,7 +47,7 @@ http://localhost:8081
 
 ## Pipeline flow
 
-1. DAG читает CSV из `data/`.
+1. DAG читает CSV из `datasets/`.
 2. Добавляет системные поля.
 3. Загружает в `raw.olist_*`.
 4. Нормализация в `staging.*`.
@@ -59,20 +59,20 @@ http://localhost:8081
 
 Каждая raw-таблица содержит:
 
-- `_ingestion_id`
-- `_ingested_at`
-- `_source_file`
-- `_record_hash`
-- `_batch_id`
+- `ingestion_id`
+- `ingested_at`
+- `source_file`
+- `record_hash`
+- `batch_id`
 - бизнес-поля
 
 ## Development
 
 ## Roadmap
 
-- [ ] Repository structure
-- [ ] Docker Compose
-- [ ] Basic CSV ingestion to raw
+- [x] Repository structure
+- [x] Docker Compose
+- [x] Basic CSV ingestion to raw
 - [ ] Staging transformations
 - [ ] Star schema marts
 - [ ] Incremental loads

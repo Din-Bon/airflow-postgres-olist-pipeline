@@ -1,52 +1,52 @@
-from datetime import datetime, timedelta
 from pathlib import Path
+from itertools import islice
+import pendulum
 import uuid
 import logging
-from airflow.decorators import dag, task
-from airflow.operators.python import get_current_context
-from airflow.operators.trigger_dagrun import TriggerDagRunOperator
+from airflow.sdk import dag, task, get_current_context
+from airflow.providers.standard.operators.trigger_dagrun import TriggerDagRunOperator
 from src.extract.csv_loader import read_csv_with_metadata
 from src.load.postgres_loader import load_to_postgres
 
 @dag(
     dag_id="olist_raw_ingestion",
-    start_date=datetime(2026, 1, 1,),
+    start_date=pendulum.datetime(2026, 1, 1, tz="UTC"),
     default_args={
         "owner": "admin",
         "depends_on_past": False,
-        "execution_timeout": timedelta(minutes=10),
+        "execution_timeout": pendulum.duration(minutes=10),
         "retries": 1,
     },
     schedule=None,
     catchup=False,
     max_active_runs=1,
-    tags=["api", "json"],
+    tags=["olist", "csv", "raw"],
 )
 def load_olist_raw_data():
 
     POSTGRES_CONN_ID = "postgres_olist_conn_id"
-    INGESTION_ID = str(uuid.uuid4())
 
     @task
     def load_table_data(file: str, table: str):
         file_path = Path("/opt/airflow/datasets") / file
-        ti = get_current_context()["ti"]
-        log = logging.getLogger(ti.dag_id)
+        run_id = get_current_context()["run_id"]
+        log = logging.getLogger(run_id)
 
-        records = list(
-            read_csv_with_metadata(
-                file_path=file_path,
-                batch_id=ti.dag_id,
-                ingestion_id=INGESTION_ID,
+        records = read_csv_with_metadata(
+            file_path=file_path,
+            batch_id=run_id,
+            ingestion_id=str(uuid.uuid5(uuid.NAMESPACE_URL, run_id)),
+        )
+
+        loaded = 0
+
+        while batch := list(islice(records, 5000)):
+            loaded += load_to_postgres(
+                table_name=f"raw.{table}",
+                records=batch,
+                postgres_conn_id=POSTGRES_CONN_ID,
+                log=log,
             )
-        )
-
-        loaded = load_to_postgres(
-            table_name=f"raw.{table}",
-            records=records,
-            postgres_conn_id=POSTGRES_CONN_ID,
-            log=log,
-        )
 
         log.info(f"Loaded {loaded} records into raw.{table}")
 

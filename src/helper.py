@@ -15,7 +15,7 @@ def execute_sql(
         postgres_conn_id: str,
         sql_string: str,
         parameters: list = None,
-        page_size: int = 1,
+        page_size: int = 1000,
         template: str = None,
         log: Logger = None):
     with PostgresHook(postgres_conn_id=postgres_conn_id).get_conn() as conn:

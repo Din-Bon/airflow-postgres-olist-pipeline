@@ -2,7 +2,7 @@
 
 ## Project overview
 
-ETL-пайплайн для загрузки данных Brazilian E-Commerce Public Dataset (Olist) из CSV в PostgreSQL по медальон-архитектуре: raw → staging → mart.
+ETL-пайплайн для загрузки данных Brazilian E-Commerce Public Dataset (Olist) из CSV в PostgreSQL по медальон-архитектуре: raw(bronze) → staging(silver) → mart(gold).
 
 ## Architecture
 
@@ -34,7 +34,7 @@ ETL-пайплайн для загрузки данных Brazilian E-Commerce P
 # 1. Скопируй .env.example в .env
 cp .env.example .env
 
-# 2. Помести CSV-файлы Olist в директорию data/
+# 2. Помести CSV-файлы Olist в директорию datasets/
 
 # 3. Запусти окружение
 docker compose up -d
@@ -42,7 +42,7 @@ docker compose up -d
 # 4. Открой Airflow
 http://localhost:8081
 
-# 5. Запусти DAG olist_ingestion
+# 5. Запусти DAG olist_raw_ingestion
 ```
 
 ## Pipeline flow

@@ -1,6 +1,5 @@
 import csv
 import hashlib
-from datetime import datetime
 from pathlib import Path
 from typing import Iterator
 
@@ -20,9 +19,8 @@ def read_csv_with_metadata(
         source_file = str(file_path)
 
         for row in reader:
+            row["record_hash"] = compute_record_hash(row)
             row["ingestion_id"] = ingestion_id
-            row["created_at"] = datetime.now().isoformat()
             row["source_file"] = source_file
             row["batch_id"] = batch_id
-            row["record_hash"] = compute_record_hash(row)
             yield row

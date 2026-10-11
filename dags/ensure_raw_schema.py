@@ -1,17 +1,17 @@
 import logging
+import pendulum
 from pathlib import Path
-from airflow.decorators import dag, task
-from airflow.operators.python import get_current_context
+from airflow.sdk import dag, task, get_current_context
 from datetime import datetime, timedelta
 from src.helper import load_sql, execute_sql
 
 @dag(
     dag_id="ensure_raw_schema",
-    start_date=datetime(2026, 1, 1,),
+    start_date=pendulum.datetime(2026, 1, 1, tz="UTC"),
     default_args={
         "owner": "admin",
         "depends_on_past": False,
-        "execution_timeout": timedelta(minutes=10),
+        "execution_timeout": pendulum.duration(minutes=10),
         "retries": 1,
     },
     schedule=None,
@@ -26,7 +26,7 @@ def ensure_raw_schema():
 
     @task
     def ensure_schema(sql_path: str):
-        log = logging.getLogger(get_current_context()["ti"].dag_id)
+        log = logging.getLogger(get_current_context()["run_id"])
         execute_sql(
             postgres_conn_id=POSTGRES_CONN_ID,
             sql_string=load_sql(sql_path).format(schema="raw"),
@@ -35,7 +35,7 @@ def ensure_raw_schema():
 
     @task
     def ensure_table(sql_path: str, table_name: str):
-        log = logging.getLogger(get_current_context()["ti"].dag_id)
+        log = logging.getLogger(get_current_context()["run_id"])
         execute_sql(
             postgres_conn_id=POSTGRES_CONN_ID,
             sql_string=load_sql(sql_path),

@@ -4,6 +4,10 @@
 
 ETL-пайплайн для загрузки данных Brazilian E-Commerce Public Dataset (Olist) из CSV в PostgreSQL по медальон-архитектуре: raw(bronze) → staging(silver) → mart(gold).
 
+## Dataset
+
+В проекте используется датасет [Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce), распространяемый под лицензией [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+
 ## Architecture
 
 ```
@@ -60,13 +64,11 @@ http://localhost:8081
 Каждая raw-таблица содержит:
 
 - `ingestion_id`
-- `ingested_at`
+- `created_at`
 - `source_file`
 - `record_hash`
 - `batch_id`
 - бизнес-поля
-
-## Development
 
 ## Roadmap
 
